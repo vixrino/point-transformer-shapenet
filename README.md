@@ -65,29 +65,12 @@ make sanity-check
 
 ## Repository layout
 
-| Path | Role |
-|------|------|
-| `models/point_transformer.py` | Point Transformer blocks, classifier, segmentor |
-| `data_shapenet.py` | Classification dataset wrapper + subsampling |
-| `train.py` | Classification training loop + checkpointing |
-| `train_segmentation.py` | Segmentation training + mIoU |
-| `sanity_check.py` | Procedural mesh + junction-face visualization |
-| `download_shapenet.py` | Dataset download with retries |
-| `Makefile` | `install`, `download`, `train`, `seg`, `sanity-check`, `clean` |
-
-## Citation
-
-If you use this for research, cite the original paper:
-
-```bibtex
-@inproceedings{zhao2021point,
-  title={Point Transformer},
-  author={Zhao, Hengshuang and Jiang, Li and Jia, Jiaya and Torr, Philip HS and Koltun, Vladlen},
-  booktitle={ICCV},
-  year={2021}
-}
-```
-
-## Acknowledgements
-
-ShapeNet is from Chang et al.; the part segmentation benchmark is the standard PyG `ShapeNet` dataset. This repo is for learning and experimentation, not an official reimplementation of the authors’ code.
+| Path                          | Role                                                           |
+| ----------------------------- | -------------------------------------------------------------- |
+| `models/point_transformer.py` | Point Transformer blocks, classifier, segmentor                |
+| `data_shapenet.py`            | Classification dataset wrapper + subsampling                   |
+| `train.py`                    | Classification training loop + checkpointing                   |
+| `train_segmentation.py`       | Segmentation training + mIoU                                   |
+| `sanity_check.py`             | Procedural mesh + junction-face visualization                  |
+| `download_shapenet.py`        | Dataset download with retries                                  |
+| `Makefile`                    | `install`, `download`, `train`, `seg`, `sanity-check`, `clean` |
