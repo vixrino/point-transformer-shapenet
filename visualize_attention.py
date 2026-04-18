@@ -119,6 +119,17 @@ def hide_axes(ax) -> None:
     ax.set_zticklabels([])
 
 
+def clean_3d_panes(ax) -> None:
+    """Make the 3D panes transparent and hide the grid for a clean look."""
+    ax.xaxis.pane.fill = False
+    ax.yaxis.pane.fill = False
+    ax.zaxis.pane.fill = False
+    ax.xaxis.pane.set_edgecolor("white")
+    ax.yaxis.pane.set_edgecolor("white")
+    ax.zaxis.pane.set_edgecolor("white")
+    ax.grid(False)
+
+
 def set_equal_limits(ax, center: np.ndarray, radius: float) -> None:
     ax.set_xlim(center[0] - radius, center[0] + radius)
     ax.set_ylim(center[2] - radius, center[2] + radius)
@@ -160,16 +171,17 @@ def main() -> None:
 
     row, col = edge_index.numpy()
     pos = pos_t.numpy()
+    full_pos = raw.pos.numpy()
     labels = y_t.numpy()
     attn_np = attn_weights.numpy()
 
     queries = pick_queries_on_distinct_parts(pos, labels, args.n_queries, rng)
 
-    obj_center = (pos.max(axis=0) + pos.min(axis=0)) / 2
-    obj_radius = (pos.max(axis=0) - pos.min(axis=0)).max() / 2 * 1.05
+    obj_center = (full_pos.max(axis=0) + full_pos.min(axis=0)) / 2
+    obj_radius = (full_pos.max(axis=0) - full_pos.min(axis=0)).max() / 2 * 1.05
 
-    top_elev, top_azim = 22, -55
-    bot_elev, bot_azim = 22, -55
+    top_elev, top_azim = 20, 45
+    bot_elev, bot_azim = 20, 45
 
     fig = plt.figure(figsize=(15, 10))
     fig.suptitle(
@@ -188,18 +200,19 @@ def main() -> None:
         part_name = SHAPENET_PART_NAMES.get(part_id, f"part {part_id}")
 
         ax_top = fig.add_subplot(2, args.n_queries, col_i + 1, projection="3d")
-        ax_top.scatter(pos[:, 0], pos[:, 2], pos[:, 1],
-                       c="#b8b8b8", s=8, alpha=0.30, edgecolors="none", zorder=1)
+        ax_top.scatter(full_pos[:, 0], full_pos[:, 2], full_pos[:, 1],
+                       c="lightgray", s=8, alpha=0.5, edgecolors="none", zorder=1)
         ax_top.scatter(pos[neighbor_idx, 0], pos[neighbor_idx, 2], pos[neighbor_idx, 1],
-                       c="#1f77b4", s=60, alpha=0.95,
-                       edgecolors="white", linewidths=0.8, zorder=5)
+                       c="#1f77b4", s=80, alpha=0.9,
+                       edgecolors="black", linewidths=0.8, zorder=5)
         ax_top.scatter([pos[qp, 0]], [pos[qp, 2]], [pos[qp, 1]],
-                       c="red", s=200, marker="*",
-                       edgecolors="black", linewidths=1.0, zorder=10)
+                       c="red", s=300, marker="*",
+                       edgecolors="black", linewidths=1.2, zorder=10)
         set_equal_limits(ax_top, obj_center, obj_radius)
         ax_top.view_init(elev=top_elev, azim=top_azim)
         ax_top.set_title(f"Query #{qp} — {part_name}", fontsize=11, pad=6)
         hide_axes(ax_top)
+        clean_3d_panes(ax_top)
 
         ax_bot = fig.add_subplot(2, args.n_queries, args.n_queries + col_i + 1, projection="3d")
 
@@ -226,6 +239,7 @@ def main() -> None:
         ax_bot.view_init(elev=bot_elev, azim=bot_azim)
         ax_bot.set_title(f"Query #{qp} — attention weights", fontsize=11, pad=6)
         hide_axes(ax_bot)
+        clean_3d_panes(ax_bot)
 
     bottom_axes = [ax for ax in fig.axes[args.n_queries:]]
     sm = plt.cm.ScalarMappable(cmap="plasma", norm=plt.Normalize(vmin=0, vmax=1))
