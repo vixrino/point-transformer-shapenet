@@ -54,17 +54,28 @@ def subsample(data, num_points: int):
 
 
 def plot_pointcloud(ax, pos, labels, title: str, valid_parts: list[int]) -> None:
-    """Affiche un nuage de points coloré par label de pièce."""
+    """Render a point cloud colored by part label with equal 3D aspect ratio."""
     pos = pos.numpy()
     labels = labels.numpy()
     part_to_local = {p: i for i, p in enumerate(sorted(valid_parts))}
     colors = [COLORS[part_to_local.get(l, 0) % len(COLORS)] for l in labels]
-    ax.scatter(pos[:, 0], pos[:, 2], pos[:, 1], c=colors, s=3, alpha=0.8)
+    ax.scatter(pos[:, 0], pos[:, 2], pos[:, 1], c=colors, s=8, alpha=0.85, edgecolors="none")
     ax.set_title(title, fontsize=12)
     ax.set_xlabel("x")
     ax.set_ylabel("z")
     ax.set_zlabel("y")
-    ax.set_aspect("equal")
+
+    mins = pos.min(axis=0)
+    maxs = pos.max(axis=0)
+    centers = (maxs + mins) / 2
+    max_range = (maxs - mins).max() / 2
+    ax.set_xlim(centers[0] - max_range, centers[0] + max_range)
+    ax.set_ylim(centers[2] - max_range, centers[2] + max_range)
+    ax.set_zlim(centers[1] - max_range, centers[1] + max_range)
+    try:
+        ax.set_box_aspect([1, 1, 1])
+    except AttributeError:
+        pass
     ax.grid(True, alpha=0.3)
 
 
@@ -118,10 +129,10 @@ def main() -> None:
     fig.suptitle(f"{cat_name} (#{idx}) — accuracy: {accuracy:.1f}%", fontsize=14, fontweight="bold")
 
     ax1 = fig.add_subplot(121, projection="3d")
-    plot_pointcloud(ax1, data.pos, gt, "Vérité terrain", valid_parts)
+    plot_pointcloud(ax1, data.pos, gt, "Ground truth", valid_parts)
 
     ax2 = fig.add_subplot(122, projection="3d")
-    plot_pointcloud(ax2, data.pos, pred, "Prédiction du modèle", valid_parts)
+    plot_pointcloud(ax2, data.pos, pred, "Prediction", valid_parts)
 
     plt.tight_layout()
     if args.save:
