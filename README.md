@@ -26,7 +26,7 @@ Ground truth (left) vs model prediction (right) on held-out test shapes:
 
 ### Attention visualization
 
-For a query point (red star), its k=8 nearest neighbors are colored by attention weight (bright = high attention, dark = low). Lines show the local neighborhood graph:
+Two-row figure: the **top row** shows where each query point (red star) sits on the chair, with its k=8 nearest neighbors highlighted in blue. The **bottom row** zooms on the neighborhood — edges and neighbor dots are colored by attention weight (bright = high, dark = low):
 
 ![Attention map](vis_attention.png)
 
