@@ -71,13 +71,19 @@ def plot_pointcloud(ax, pos, labels, title: str, valid_parts: list[int]) -> None
 def main() -> None:
     args = parse_args()
 
-    cats = [args.category] if args.category else None
+    all_cats = list(ShapeNet.category_ids.keys())
     test_set = ShapeNet(
-        args.data_root, categories=cats, split="test", include_normals=True,
+        args.data_root, categories=all_cats, split="test", include_normals=True,
     )
 
     if args.index is not None:
         idx = args.index
+    elif args.category:
+        cat_id = all_cats.index(args.category)
+        candidates = [i for i in range(len(test_set))
+                      if (test_set[i].category.item() if torch.is_tensor(test_set[i].category)
+                          else int(test_set[i].category)) == cat_id]
+        idx = random.choice(candidates) if candidates else 0
     else:
         idx = random.randint(0, len(test_set) - 1)
 

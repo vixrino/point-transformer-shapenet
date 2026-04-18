@@ -13,7 +13,7 @@ $(VENV)/bin/activate:
 	$(SYSPYTHON) -m venv $(VENV)
 	$(PIP) install --upgrade pip
 
-.PHONY: install train train-resume seg seg-resume sanity-check eval clean
+.PHONY: install train train-resume seg seg-resume sanity-check visualize eval clean
 
 install: $(VENV)/bin/activate
 	$(PIP) install -r requirements.txt
@@ -58,6 +58,13 @@ sanity-check: $(VENV)/bin/activate
 	$(PYTHON) sanity_check.py --shape chair --y_min -0.1 --y_max 0.38 --save sanity_chair_legs.png
 	$(PYTHON) sanity_check.py --shape table --y_min 0.35 --y_max 1.0 --save sanity_table_top.png
 	@echo "Images sauvegardées : sanity_chair_backrest.png, sanity_chair_legs.png, sanity_table_top.png"
+
+visualize: $(VENV)/bin/activate
+	$(PYTHON) visualize.py --save vis_seg_chair.png --category Chair
+	$(PYTHON) visualize.py --save vis_seg_airplane.png --category Airplane
+	$(PYTHON) visualize_classification.py --save vis_classification.png
+	$(PYTHON) visualize_attention.py --save vis_attention.png
+	@echo "Visualizations saved: vis_seg_*.png, vis_classification.png, vis_attention.png"
 
 eval: $(VENV)/bin/activate
 	$(PYTHON) train.py \

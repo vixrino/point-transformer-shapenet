@@ -7,7 +7,28 @@ Two tasks are supported:
 - **Shape classification** — predict the object category (e.g. chair, airplane).
 - **Part segmentation** — per-point part labels (ShapeNet part benchmark).
 
-The code uses a **pure PyTorch k-NN graph** and PyG’s `scatter` / `softmax` utilities so you do not need `torch-cluster` or `torch-scatter` wheels.
+The code uses a **pure PyTorch k-NN graph** and PyG's `scatter` / `softmax` utilities so you do not need `torch-cluster` or `torch-scatter` wheels.
+
+## Results
+
+### Classification
+
+8 random test objects — green = correct prediction, red = wrong:
+
+![Classification](vis_classification.png)
+
+### Part segmentation
+
+Ground truth (left) vs model prediction (right) on held-out test shapes:
+
+![Segmentation — Chair](vis_seg_chair.png)
+![Segmentation — Airplane](vis_seg_airplane.png)
+
+### Attention visualization
+
+For a query point (red star), its k=8 nearest neighbors are colored by attention weight (bright = high attention, dark = low). Lines show the local neighborhood graph:
+
+![Attention map](vis_attention.png)
 
 ## Requirements
 
@@ -55,6 +76,22 @@ make seg-resume
 
 Override hyperparameters via Makefile variables, e.g. `make train EPOCHS=30 K=16 BATCH=32`, or call `train.py` / `train_segmentation.py` with `--help`.
 
+## Visualization
+
+After training, generate all visual outputs:
+
+```bash
+make visualize
+```
+
+Or individually:
+
+```bash
+.venv/bin/python3 visualize.py --category Chair --save vis_seg_chair.png
+.venv/bin/python3 visualize_classification.py --save vis_classification.png
+.venv/bin/python3 visualize_attention.py --category Airplane --save vis_attention.png
+```
+
 ## Sanity check (mesh junction faces)
 
 A small **geometry-only** script (`sanity_check.py`) builds procedural meshes, masks a region, extracts **junction faces** and boundary edges, and saves PNG figures (useful when exploring mesh editing / infill ideas):
@@ -65,12 +102,15 @@ make sanity-check
 
 ## Repository layout
 
-| Path                          | Role                                                           |
-| ----------------------------- | -------------------------------------------------------------- |
-| `models/point_transformer.py` | Point Transformer blocks, classifier, segmentor                |
-| `data_shapenet.py`            | Classification dataset wrapper + subsampling                   |
-| `train.py`                    | Classification training loop + checkpointing                   |
-| `train_segmentation.py`       | Segmentation training + mIoU                                   |
-| `sanity_check.py`             | Procedural mesh + junction-face visualization                  |
-| `download_shapenet.py`        | Dataset download with retries                                  |
-| `Makefile`                    | `install`, `download`, `train`, `seg`, `sanity-check`, `clean` |
+| Path | Role |
+|------|------|
+| `models/point_transformer.py` | Point Transformer blocks, classifier, segmentor |
+| `data_shapenet.py` | Classification dataset wrapper + subsampling |
+| `train.py` | Classification training loop + checkpointing |
+| `train_segmentation.py` | Segmentation training + mIoU |
+| `visualize.py` | Segmentation: ground truth vs prediction |
+| `visualize_classification.py` | Classification grid on random test objects |
+| `visualize_attention.py` | Attention weight visualization |
+| `sanity_check.py` | Procedural mesh + junction-face visualization |
+| `download_shapenet.py` | Dataset download with retries |
+| `Makefile` | `install`, `download`, `train`, `seg`, `visualize`, `sanity-check`, `clean` |
