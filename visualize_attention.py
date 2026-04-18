@@ -186,8 +186,17 @@ def main() -> None:
     fig = plt.figure(figsize=(15, 10))
     fig.suptitle(
         f"Attention weights — {args.category} (Point Transformer, block 0, k={args.k})",
-        fontsize=15, fontweight="bold", y=0.99,
+        fontsize=15, fontweight="bold", y=0.97,
     )
+
+    fig.subplots_adjust(left=0.02, right=0.88, top=0.90, bottom=0.08,
+                        wspace=0.05, hspace=0.15)
+
+    top_title_y = 0.90
+    bot_title_y = 0.48
+    x_left, x_right = 0.02, 0.88
+    col_centers = [x_left + (x_right - x_left) * (i + 0.5) / args.n_queries
+                   for i in range(args.n_queries)]
 
     for col_i, qp in enumerate(queries):
         neighbor_mask = col == qp
@@ -210,7 +219,9 @@ def main() -> None:
                        edgecolors="black", linewidths=1.2, zorder=10)
         set_equal_limits(ax_top, obj_center, obj_radius)
         ax_top.view_init(elev=top_elev, azim=top_azim)
-        ax_top.set_title(f"Query #{qp} — {part_name}", fontsize=11, pad=6)
+        fig.text(col_centers[col_i], top_title_y,
+                 f"Query #{qp} — {part_name}",
+                 ha="center", va="center", fontsize=11)
         hide_axes(ax_top)
         clean_3d_panes(ax_top)
 
@@ -237,7 +248,9 @@ def main() -> None:
 
         set_equal_limits(ax_bot, np.array([pos[qp, 0], pos[qp, 1], pos[qp, 2]]), local_radius)
         ax_bot.view_init(elev=bot_elev, azim=bot_azim)
-        ax_bot.set_title(f"Query #{qp} — attention weights", fontsize=11, pad=6)
+        fig.text(col_centers[col_i], bot_title_y,
+                 f"Query #{qp} — attention weights",
+                 ha="center", va="center", fontsize=11)
         hide_axes(ax_bot)
         clean_3d_panes(ax_bot)
 
@@ -254,7 +267,7 @@ def main() -> None:
         ha="center", fontsize=10, color="#333333",
     )
 
-    plt.savefig(args.save, dpi=150, bbox_inches="tight")
+    plt.savefig(args.save, dpi=150)
     print(f"Image saved: {args.save}")
 
 
